@@ -1068,7 +1068,25 @@ impl Decodable for Transaction {
                             lock_time: Decodable::consensus_decode_from_finite_reader(r)?,
                         })
                     }
-                }
+                },
+                // ltc version 8 segwit
+                8 => {
+                    let mut input = Vec::<TxIn>::consensus_decode_from_finite_reader(r)?;
+                    let output = Vec::<TxOut>::consensus_decode_from_finite_reader(r)?;
+                    for txin in input.iter_mut() {
+                        txin.witness = Decodable::consensus_decode_from_finite_reader(r)?;
+                    }
+                    if !input.is_empty() && input.iter().all(|input| input.witness.is_empty()) {
+                        Err(encode::Error::ParseFailed("witness flag set but no witnesses present"))
+                    } else {
+                        Ok(Transaction {
+                            version,
+                            input,
+                            output,
+                            lock_time: Decodable::consensus_decode_from_finite_reader(r)?,
+                        })
+                    }
+                },                      
                 // We don't support anything else
                 x => {
                     println!("Kourosh we made it --------------+ HERE +--------------");
