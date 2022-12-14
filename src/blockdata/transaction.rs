@@ -1070,7 +1070,10 @@ impl Decodable for Transaction {
                     }
                 }
                 // We don't support anything else
-                x => Err(encode::Error::UnsupportedSegwitFlag(x)),
+                x => {
+                    println!("Kourosh we made it --------------+ HERE +--------------");
+                    Err(encode::Error::UnsupportedSegwitFlag(x))
+                },
             }
         // non-segwit
         } else {
